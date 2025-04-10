@@ -2,29 +2,33 @@ package util
 
 import (
 	"encoding/binary"
-	"github.com/vmihailenco/msgpack/v5"
-	"log/slog"
 	"net"
 )
 
-// TODO add functionality where we can sand plain messages not only structs, similar to how len is sent!!
-func WriteMessage(conn net.Conn, msg *Message) error {
-	serialized, serErr := msgpack.Marshal(&msg)
-	if serErr != nil {
-		slog.Error("Error serializing message ", serErr.Error())
-		return serErr
-	}
+func WriteStringMessage(conn net.Conn, msg string) error {
+	data := []byte(msg)
+	packet := createPacket(PACKET_TYPE_TEXT, data)
 
-	serializedLen := uint64(len(serialized))
-	lenMessage := make([]byte, 8)
-	binary.LittleEndian.PutUint64(lenMessage, serializedLen)
-
-	data := append(lenMessage, serialized...)
-	_, err := conn.Write(data)
+	//TODO check if all was written!
+	_, err := conn.Write(packet)
 	if err != nil {
-		slog.Info("Write error:", err)
 		return err
 	}
 
 	return nil
+}
+
+func createPacketHeader(packetType uint8, dataLen uint64) []byte {
+	header := make([]byte, 9)
+	header[0] = packetType
+	binary.LittleEndian.PutUint64(header[1:], dataLen)
+	return header
+}
+
+func createPacket(packetType uint8, data []byte) []byte {
+	header := createPacketHeader(packetType, uint64(len(data)))
+	packet := make([]byte, len(data)+len(header))
+	copy(packet[0:9], header)
+	copy(packet[9:], data)
+	return packet
 }
