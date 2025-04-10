@@ -80,7 +80,7 @@ func WriteStringMessage(conn net.Conn, msg string) error {
 func createPacketHeader(packetType uint8, dataLen uint64) []byte {
 	header := make([]byte, 9)
 	header[0] = packetType
-	binary.LittleEndian.PutUint64(header[1:], 18446744073709551615)
+	binary.LittleEndian.PutUint64(header[1:], dataLen)
 	return header
 }
 
