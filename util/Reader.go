@@ -61,6 +61,7 @@ func readLength(conn net.Conn) (uint64, error) {
 // TODO: make more structured messages, using custom header and data.
 // [header][data_len][data], header should contain packet type and any necessary information for processing
 func ReadMessage(conn net.Conn) (*Message, error) {
+	//TODO: same here read using io.ReadFull
 	buf, err := readBytes(conn)
 	if err != nil {
 		slog.Info("Read error:", err)
