@@ -30,6 +30,9 @@ func readBytes(conn net.Conn) ([]byte, error) {
 
 	readSize := uint64(0)
 	for readSize < messageLength {
+		//TODO: maybe use io.ReadFull instead, conn.Read may not return requested size but what ever is has in buff, io.ReadFull might return EOF err when done
+		//this is so we don't have to handle checking if everything has been read
+		//but we have to make sure we don't try to read more than it was requested
 		n, err := conn.Read(tmp)
 		if err != nil {
 			return nil, err
@@ -55,6 +58,8 @@ func readLength(conn net.Conn) (uint64, error) {
 	return binary.LittleEndian.Uint64(buf), nil
 }
 
+// TODO: make more structured messages, using custom header and data.
+// [header][data_len][data], header should contain packet type and any necessary information for processing
 func ReadMessage(conn net.Conn) (*Message, error) {
 	buf, err := readBytes(conn)
 	if err != nil {
