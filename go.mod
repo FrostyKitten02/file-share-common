@@ -1,3 +1,3 @@
-module github.com/FrostyKitten02/fileshare-client
+module github.com/FrostyKitten02/fileshare-common
 
 go 1.24

@@ -8,8 +8,68 @@ import (
 	"net"
 )
 
-type Message struct {
-	Data string
+//TODO: Extract parsing logic, do the same in writter
+
+func ReadConnectionInfo(conn net.Conn) (RoomConnectionInfo, error) {
+	roomConnectionInfo := RoomConnectionInfo{}
+	data, header, err := ReadPacket(conn)
+	if err != nil {
+		return roomConnectionInfo, err
+	}
+
+	if header.PacketType != PACKET_TYPE_ROOM_CONNECTION_INFO {
+		return roomConnectionInfo, errors.New("wrong packet type")
+	}
+
+	roomConnectionInfo.Parse(data)
+	return roomConnectionInfo, nil
+}
+
+func ReadConnectResponse(conn net.Conn) (ConnectResponse, error) {
+	connectResponse := ConnectResponse{}
+	data, header, err := ReadPacket(conn)
+	if err != nil {
+		return connectResponse, err
+	}
+
+	if header.PacketType != PACKET_TYPE_CONNECT_RESPONSE {
+		return connectResponse, errors.New("wrong packet type")
+	}
+
+	connectResponse.Parse(data)
+	return connectResponse, nil
+}
+
+func ReadConnectRequest(conn net.Conn) (ConnectRequest, error) {
+	connectRequest := ConnectRequest{}
+	data, header, err := ReadPacket(conn)
+	if err != nil {
+		return connectRequest, err
+	}
+
+	if header.PacketType != PACKET_TYPE_CONNECT_REQUEST {
+		return connectRequest, errors.New("wrong packet type")
+	}
+
+	connectRequest.Parse(data)
+	return connectRequest, nil
+}
+
+func ReadConnectToRoomMessage(conn net.Conn) (string, error) {
+	data, header, err := ReadPacket(conn)
+	if err != nil {
+		return "", err
+	}
+
+	if header.PacketType != PACKET_TYPE_CONNECT_TO_ROOM {
+		return "", errors.New("wrong packet type")
+	}
+
+	return string(data), nil
+}
+
+func ParseConnectToRoomMessage(data []byte) string {
+	return string(data)
 }
 
 // TODO: return packet struct containing header and data!
